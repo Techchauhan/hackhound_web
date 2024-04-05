@@ -1,12 +1,10 @@
 import {
   DollarCircleOutlined,
-  AccountBalanceWalletOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
+ 
   FieldTimeOutlined, // Correct icon for 'Expenses' from Ant Design Icons
 } from "@ant-design/icons";
 
-import { Card, Space, Statistic, Table, Typography } from "antd";
+import { Card, Space, Statistic,  Typography } from "antd";
 import { useEffect, useState } from "react";
 import { getCustomers, getInventory, getOrders, getRevenue } from "../../API";
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';

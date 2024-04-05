@@ -3,7 +3,7 @@ import Customers from "../../Pages/Customers/customers";
 import Dashboard from "../../Pages/Dashbaord/dashboard";
 import Inventory from "../../Pages/Inventory/inventory";
 import Users from "../../Pages/Users/user";
-import Orders from "../../Pages/Orders";
+import Orders from "../../Pages/Orders/loan";
 
 function AppRoutes() {
   return (
