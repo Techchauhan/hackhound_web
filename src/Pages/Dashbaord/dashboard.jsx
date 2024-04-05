@@ -1,9 +1,5 @@
-import {
-  DollarCircleOutlined,
-  ShoppingCartOutlined,
-  ShoppingOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { MailOutlined, BellOutlined, AppstoreOutlined, ShopOutlined,ShoppingOutlined, ShoppingCartOutlined, UserOutlined, DollarCircleOutlined } from '@ant-design/icons';
+
 import { Card, Space, Statistic, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { getCustomers, getInventory, getOrders, getRevenue } from "../../API";
