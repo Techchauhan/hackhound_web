@@ -1,0 +1,18 @@
+.user-details-table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  .user-details-table td {
+    border: 1px solid #dddddd;
+    padding: 8px;
+  }
+  
+  .user-details-table td.key-column {
+    font-weight: bold;
+  }
+  
+  .user-details-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  

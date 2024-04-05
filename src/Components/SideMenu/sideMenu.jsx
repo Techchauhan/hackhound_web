@@ -40,6 +40,11 @@ function SideMenu() {
             icon: <ShopOutlined />,
           },
           {
+            label: "Users",
+            key: "/users",
+            icon: <ShopOutlined />,
+          },
+          {
             label: "Orders",
             key: "/orders",
             icon: <ShoppingCartOutlined />,

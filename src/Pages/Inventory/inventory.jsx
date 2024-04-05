@@ -1,7 +1,13 @@
-import React from 'react'
+// Inventory.jsx
+import React from 'react';
 
-export default function Inventory() {
+function Inventory() {
   return (
-    <div>Inventory</div>
-  )
+    <div>
+      <h1>Inventory</h1>
+      <div>hi</div>
+    </div>
+  );
 }
+
+export default Inventory;
