@@ -1,32 +1,20 @@
 import {
   DollarCircleOutlined,
+  AccountBalanceWalletOutlined,
   ShoppingCartOutlined,
-  ShoppingOutlined,
   UserOutlined,
+  FieldTimeOutlined, // Correct icon for 'Expenses' from Ant Design Icons
 } from "@ant-design/icons";
+
 import { Card, Space, Statistic, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { getCustomers, getInventory, getOrders, getRevenue } from "../../API";
-
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from "react-chartjs-2";
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function Dashboard() {
   const [orders, setOrders] = useState(0);
@@ -49,80 +37,41 @@ function Dashboard() {
 
   return (
     <Space size={20} direction="vertical">
-      <Typography.Title level={4}>Dashboard</Typography.Title>
+      <Typography.Title level={4} style={{ color: "blue" }}>Dashboard</Typography.Title>
       <Space direction="horizontal">
         <DashboardCard
-          icon={
-            <ShoppingCartOutlined
-              style={{
-                color: "green",
-                backgroundColor: "rgba(0,255,0,0.25)",
-                borderRadius: 20,
-                fontSize: 24,
-                padding: 8,
-              }}
-            />
-          }
-          title={"Orders"}
+          icon={<CurrencyRupeeIcon style={{ color: "green" }} />}
+          title={"Total Income"}
           value={orders}
+          cardColor="rgba(0, 255, 0, 0.1)"
         />
         <DashboardCard
-          icon={
-            <ShoppingOutlined
-              style={{
-                color: "blue",
-                backgroundColor: "rgba(0,0,255,0.25)",
-                borderRadius: 20,
-                fontSize: 24,
-                padding: 8,
-              }}
-            />
-          }
-          title={"Inventory"}
+          icon={<AccountBalanceWalletIcon style={{ color: "blue" }} />}
+          title={"Total Balance"}
           value={inventory}
+          cardColor="rgba(0, 0, 255, 0.1)"
         />
         <DashboardCard
-          icon={
-            <UserOutlined
-              style={{
-                color: "purple",
-                backgroundColor: "rgba(0,255,255,0.25)",
-                borderRadius: 20,
-                fontSize: 24,
-                padding: 8,
-              }}
-            />
-          }
-          title={"Customer"}
+          icon={<FieldTimeOutlined style={{ color: "purple" }} />}
+          title={"Expenses"}
           value={customers}
+          cardColor="rgba(128, 0, 128, 0.1)"
         />
         <DashboardCard
-          icon={
-            <DollarCircleOutlined
-              style={{
-                color: "red",
-                backgroundColor: "rgba(255,0,0,0.25)",
-                borderRadius: 20,
-                fontSize: 24,
-                padding: 8,
-              }}
-            />
-          }
+          icon={<DollarCircleOutlined style={{ color: "red" }} />}
           title={"Revenue"}
           value={revenue}
+          cardColor="rgba(255, 0, 0, 0.1)"
         />
       </Space>
-      <Space>
-        <RecentOrders />
-        <DashboardChart />
-      </Space>
+      <DashboardChart />
     </Space>
   );
 }
 
-function DashboardCard({ title, value, icon }) {
+function DashboardCard({ title, value, icon, cardColor }) {
   return (
-    <Card>
+    <Card style={{ backgroundColor: cardColor }}>
       <Space direction="horizontal">
         {icon}
         <Statistic title={title} value={value} />
@@ -130,46 +79,9 @@ function DashboardCard({ title, value, icon }) {
     </Card>
   );
 }
-function RecentOrders() {
-  const [dataSource, setDataSource] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    getOrders().then((res) => {
-      setDataSource(res.products.splice(0, 3));
-      setLoading(false);
-    });
-  }, []);
-
-  return (
-    <>
-      <Typography.Text>Recent Orders</Typography.Text>
-      <Table
-        columns={[
-          {
-            title: "Title",
-            dataIndex: "title",
-          },
-          {
-            title: "Quantity",
-            dataIndex: "quantity",
-          },
-          {
-            title: "Price",
-            dataIndex: "discountedPrice",
-          },
-        ]}
-        loading={loading}
-        dataSource={dataSource}
-        pagination={false}
-      ></Table>
-    </>
-  );
-}
 
 function DashboardChart() {
-  const [reveneuData, setReveneuData] = useState({
+  const [revenueData, setRevenueData] = useState({
     labels: [],
     datasets: [],
   });
@@ -177,24 +89,28 @@ function DashboardChart() {
   useEffect(() => {
     getRevenue().then((res) => {
       const labels = res.carts.map((cart) => {
-        return `User-${cart.userId}`;
+        return cart.date; // Assuming the date is available in the response
       });
       const data = res.carts.map((cart) => {
         return cart.discountedTotal;
+      });
+
+      const backgroundColors = data.map((_, index) => {
+        return `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.5)`;
       });
 
       const dataSource = {
         labels,
         datasets: [
           {
-            label: "Revenue",
-            data: data,
-            backgroundColor: "rgba(255, 0, 0, 1)",
+            label: "Dates",
+            data,
+            backgroundColor: backgroundColors,
           },
         ],
       };
 
-      setReveneuData(dataSource);
+      setRevenueData(dataSource);
     });
   }, []);
 
@@ -213,8 +129,9 @@ function DashboardChart() {
 
   return (
     <Card style={{ width: 500, height: 250 }}>
-      <Bar options={options} data={reveneuData} />
+      <Bar options={options} data={revenueData} />
     </Card>
   );
 }
+
 export default Dashboard;
