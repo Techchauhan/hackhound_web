@@ -90,7 +90,6 @@ function Dashboard() {
                 borderRadius: 20,
                 fontSize: 24,
                 padding: 8,
-                paddingLeft:10,
               }}
             />
           }
