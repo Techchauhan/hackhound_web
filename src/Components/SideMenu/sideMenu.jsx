@@ -34,20 +34,20 @@ function SideMenu() {
             icon: <AppstoreOutlined />,
             key: "/",
           },
-          {
-            label: "Inventory",
-            key: "/inventory",
-            icon: <ShopOutlined />,
-          },
+          // {
+          //   label: "Inventory",
+          //   key: "/inventory",
+          //   icon: <ShopOutlined />,
+          // },
           {
             label: "Users",
             key: "/users",
             icon: <ShopOutlined />,
           },
           {
-            label: "Orders",
+            label: " loan",
             key: "/orders",
-            icon: <ShoppingCartOutlined />,
+            icon: <UserOutlined />,
           },
           {
             label: "Customers",

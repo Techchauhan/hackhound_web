@@ -1,134 +1,129 @@
-import {
-  DollarCircleOutlined,
- 
-  FieldTimeOutlined, // Correct icon for 'Expenses' from Ant Design Icons
-} from "@ant-design/icons";
+import React, { useState, useEffect } from 'react';
+import { Typography, Space, Card, Statistic } from 'antd';
+import { DollarCircleOutlined, FieldTimeOutlined } from '@ant-design/icons';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebaseconfig'; // Update the path as per your project structure
+import { BarChart } from '@mui/x-charts/BarChart';
+import { axisClasses } from '@mui/x-charts';
 
-import { Card, Space, Statistic,  Typography } from "antd";
-import { useEffect, useState } from "react";
-import { getCustomers, getInventory, getOrders, getRevenue } from "../../API";
-import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Bar } from "react-chartjs-2";
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+const chartSetting = {
+  yAxis: [
+    {
+      label: 'rainfall (mm)',
+    },
+  ],
+  width: 600,
+  height: 300,
+  sx: {
+    [`.${axisClasses.left} .${axisClasses.label}`]: {
+      transform: 'translate(-20px, 0)',
+    },
+  },
+};
+const dataset = [
+  {
+    Jan: 59,
+    Feb: 57,
+    Mar: 86,
+    Apr: 21,
+  },
+  {
+    Jan: 50,
+    Feb: 52,
+    Mar: 78,
+    Apr: 28,
+  },
+  {
+    Jan: 47,
+    Feb: 53,
+    Mar: 106,
+    Apr: 41,
+  },
+  {
+    Jan: 54,
+    Feb: 56,
+    Mar: 92,
+    Apr: 73,
+  },
+  {
+    Jan: 57,
+    Feb: 69,
+    Mar: 92,
+    Apr: 99,
+  },
+  {
+    Jan: 60,
+    Feb: 63,
+    Mar: 103,
+    Apr: 144,
+  },
+  {
+    Jan: 59,
+    Feb: 60,
+    Mar: 105,
+    Apr: 319,
+  },
+];
 
-Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+const valueFormatter = (value) => `${value}mm`;
 
 function Dashboard() {
-  const [orders, setOrders] = useState(0);
-  const [inventory, setInventory] = useState(0);
-  const [customers, setCustomers] = useState(0);
-  const [revenue, setRevenue] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0); // Initialize with appropriate initial value
+  const [lastTransaction, setLastTransaction] = useState(); // Initialize with appropriate initial value
 
   useEffect(() => {
-    getOrders().then((res) => {
-      setOrders(res.total);
-      setRevenue(res.discountedTotal);
-    });
-    getInventory().then((res) => {
-      setInventory(res.total);
-    });
-    getCustomers().then((res) => {
-      setCustomers(res.total);
-    });
+    const fetchFirestoreData = async () => {
+      try {
+        const db = getFirestore();
+        const querySnapshot = await getDocs(collection(db, 'bank'));
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          setTotalAmount(data.totalAmount);
+          setLastTransaction(data.lastTransaction);
+        });
+      } catch (error) {
+        console.error('Error fetching data from Firestore:', error);
+      }
+    };
+
+    fetchFirestoreData();
   }, []);
 
   return (
     <Space size={20} direction="vertical">
-      <Typography.Title level={4} style={{ color: "blue" }}>Dashboard</Typography.Title>
+      <Typography.Title level={4} style={{ color: 'blue' }}>Dashboard</Typography.Title>
       <Space direction="horizontal">
-        <DashboardCard
-          icon={<CurrencyRupeeIcon style={{ color: "green" }} />}
-          title={"Total Income"}
-          value={orders}
-          cardColor="rgba(0, 255, 0, 0.1)"
-        />
-        <DashboardCard
-          icon={<AccountBalanceWalletIcon style={{ color: "blue" }} />}
-          title={"Total Balance"}
-          value={inventory}
-          cardColor="rgba(0, 0, 255, 0.1)"
-        />
-        <DashboardCard
-          icon={<FieldTimeOutlined style={{ color: "purple" }} />}
-          title={"Expenses"}
-          value={customers}
-          cardColor="rgba(128, 0, 128, 0.1)"
-        />
-        <DashboardCard
-          icon={<DollarCircleOutlined style={{ color: "red" }} />}
-          title={"Revenue"}
-          value={revenue}
-          cardColor="rgba(255, 0, 0, 0.1)"
-        />
+        <Card style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)' }}>
+          <Space direction="horizontal">
+            <DollarCircleOutlined style={{ color: 'red' }} />
+            <Statistic title="Total Amount" value={totalAmount} />
+          </Space>
+        </Card>
+        <Card style={{ backgroundColor: 'rgba(128, 0, 128, 0.1)' }}>
+          <Space direction="horizontal">
+            <FieldTimeOutlined style={{ color: 'purple' }} />
+            <Statistic title="Last Transaction" value={lastTransaction} />
+          </Space>
+        </Card>
       </Space>
-      <DashboardChart />
+      <BarsDataset />
     </Space>
   );
 }
 
-function DashboardCard({ title, value, icon, cardColor }) {
+function BarsDataset() {
   return (
-    <Card style={{ backgroundColor: cardColor }}>
-      <Space direction="horizontal">
-        {icon}
-        <Statistic title={title} value={value} />
-      </Space>
-    </Card>
-  );
-}
-
-function DashboardChart() {
-  const [revenueData, setRevenueData] = useState({
-    labels: [],
-    datasets: [],
-  });
-
-  useEffect(() => {
-    getRevenue().then((res) => {
-      const labels = res.carts.map((cart) => {
-        return cart.date; // Assuming the date is available in the response
-      });
-      const data = res.carts.map((cart) => {
-        return cart.discountedTotal;
-      });
-
-      const backgroundColors = data.map((_, index) => {
-        return `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.5)`;
-      });
-
-      const dataSource = {
-        labels,
-        datasets: [
-          {
-            label: "Dates",
-            data,
-            backgroundColor: backgroundColors,
-          },
-        ],
-      };
-
-      setRevenueData(dataSource);
-    });
-  }, []);
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "bottom",
-      },
-      title: {
-        display: true,
-        text: "Order Revenue",
-      },
-    },
-  };
-
-  return (
-    <Card style={{ width: 500, height: 250 }}>
-      <Bar options={options} data={revenueData} />
-    </Card>
+    <BarChart
+      dataset={dataset}
+      xAxis={[{ scaleType: 'band', dataKey: 'Jan' }, { scaleType: 'band', dataKey: 'Feb' }, { scaleType: 'band', dataKey: 'Mar' }, { scaleType: 'band', dataKey: 'Apr' }]}
+      series={[
+        { dataKey: 'Jan', label: 'Jan', valueFormatter },
+        { dataKey: 'Feb', label: 'Feb', valueFormatter },
+        { dataKey: 'Mar', label: 'Mar', valueFormatter },
+        { dataKey: 'Apr', label: 'Apr', valueFormatter },
+      ]}
+      {...chartSetting}
+    />
   );
 }
 
